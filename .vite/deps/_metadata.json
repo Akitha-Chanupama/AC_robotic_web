@@ -1,0 +1,80 @@
+{
+  "hash": "3e464343",
+  "configHash": "b6098756",
+  "lockfileHash": "90a90a52",
+  "browserHash": "5fea0a07",
+  "optimized": {
+    "@splinetool/react-spline": {
+      "src": "../../node_modules/@splinetool/react-spline/dist/react-spline.js",
+      "file": "@splinetool_react-spline.js",
+      "fileHash": "8bf0d792",
+      "needsInterop": false
+    },
+    "framer-motion": {
+      "src": "../../node_modules/framer-motion/dist/es/index.mjs",
+      "file": "framer-motion.js",
+      "fileHash": "f8c413f7",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "4d255b05",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "c3c31830",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "c22399a8",
+      "needsInterop": true
+    }
+  },
+  "chunks": {
+    "boolean-2tdi7GRp": {
+      "file": "boolean-2tdi7GRp.js",
+      "isDynamicEntry": true
+    },
+    "gaussian-splat-compression-J6QpzOFJ": {
+      "file": "gaussian-splat-compression-J6QpzOFJ.js",
+      "isDynamicEntry": true
+    },
+    "howler-DQolzArC": {
+      "file": "howler-DQolzArC.js",
+      "isDynamicEntry": true
+    },
+    "jsx-runtime-gvUgNymC": {
+      "file": "jsx-runtime-gvUgNymC.js",
+      "isDynamicEntry": false
+    },
+    "navmesh-Db-1hR6k": {
+      "file": "navmesh-Db-1hR6k.js",
+      "isDynamicEntry": true
+    },
+    "opentype-DRu5Hcwo": {
+      "file": "opentype-DRu5Hcwo.js",
+      "isDynamicEntry": true
+    },
+    "physics-DMrwtQ1B": {
+      "file": "physics-DMrwtQ1B.js",
+      "isDynamicEntry": true
+    },
+    "process-Cvdq12_3": {
+      "file": "process-Cvdq12_3.js",
+      "isDynamicEntry": true
+    },
+    "react-B6BdZLWZ": {
+      "file": "react-B6BdZLWZ.js",
+      "isDynamicEntry": false
+    },
+    "ui-CDcGFqaq": {
+      "file": "ui-CDcGFqaq.js",
+      "isDynamicEntry": true
+    }
+  }
+}

@@ -36,36 +36,3 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
-@keyframes projectOrbFloat {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -14px; }
-}
-
-/* Horizontal project carousel — scroll-driven scale (progressive enhancement) */
-.projects-scroller {
-  -webkit-overflow-scrolling: touch;
-}
-
-@supports ((animation-timeline: view()) and (animation-range: entry)) {
-  .projects-scroller > .project-card {
-    animation: projectCardFocus auto linear both;
-    animation-timeline: view(inline);
-  }
-}
-
-@keyframes projectCardFocus {
-  0% { opacity: 0.68; }
-  40%, 60% { opacity: 1; }
-  100% { opacity: 0.68; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .projects-scroller > .project-card {
-    animation: none !important;
-  }
-
-  @keyframes projectOrbFloat {
-    0%, 100% { translate: 0 0; }
-  }
-}
