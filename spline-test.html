@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spline Robot — Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0A0A0A;
+      color: #fff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .pill-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 13px;
+      color: #fff;
+      background: transparent;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .pill-btn:hover { background: rgba(255,255,255,0.07); }
+
+    .pill-orange {
+      background: #E8593C;
+      border-color: #E8593C;
+      color: #fff;
+      font-weight: 500;
+    }
+    .pill-orange:hover { filter: brightness(1.1); background: #E8593C; }
+
+    .nav-location {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* Giant name behind everything */
+    .hero-name {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-name span {
+      font-size: clamp(80px, 18vw, 260px);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: #fff;
+      text-align: center;
+    }
+
+    /* Orange radial glow */
+    .hero-glow {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(ellipse 55% 65% at 50% 50%,
+        rgba(180, 60, 20, 0.45) 0%,
+        rgba(140, 40, 10, 0.2) 40%,
+        transparent 70%);
+    }
+
+    /* Spline container */
+    .spline-wrap {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+    }
+
+    spline-viewer {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Loading state */
+    .spline-loader {
+      position: absolute;
+      inset: 0;
+      z-index: 9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    .spline-loader.hidden { opacity: 0; }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 2px solid rgba(232, 89, 60, 0.3);
+      border-top-color: #E8593C;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text {
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Status badge (top of scene) */
+    .scene-status {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      font-size: 11px;
+      font-family: monospace;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.15em;
+      pointer-events: none;
+    }
+
+    /* Floating UI layer */
+    .hero-ui {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    /* Tagline */
+    .tagline {
+      position: absolute;
+      bottom: 70px;
+      left: 40px;
+      pointer-events: auto;
+    }
+    .tagline h2 {
+      font-size: clamp(28px, 4.5vw, 62px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+    .tagline .strike {
+      text-decoration: line-through;
+      color: rgba(255,255,255,0.3);
+      animation: glitch 3.5s ease-in-out infinite;
+    }
+    .tagline .accent { color: #E8593C; }
+
+    @keyframes glitch {
+      0%, 88% { opacity: 1; }
+      89% { opacity: 0; }
+      90% { opacity: 1; }
+      94% { opacity: 0; }
+      95%, 100% { opacity: 1; }
+    }
+
+    /* Status pills */
+    .pills {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .stat-pill {
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 6px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .pill-label {
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 1px;
+    }
+    .pill-value {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Contact card */
+    .contact-card {
+      position: absolute;
+      bottom: 70px;
+      right: 40px;
+      width: 280px;
+      pointer-events: auto;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 20px;
+    }
+    .contact-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .contact-card p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 16px;
+    }
+    .social-icons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .icon-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.6);
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.18); }
+    .icon-btn.orange { background: #E8593C; border-color: #E8593C; color: #fff; }
+
+    .email-row {
+      display: flex;
+      gap: 8px;
+    }
+    .email-input {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #fff;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .email-input::placeholder { color: rgba(255,255,255,0.25); }
+    .email-input:focus { border-color: rgba(255,255,255,0.28); }
+    .send-btn {
+      width: 40px; height: 40px;
+      background: #E8593C;
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: filter .15s;
+      flex-shrink: 0;
+    }
+    .send-btn:hover { filter: brightness(1.15); }
+
+    /* Bottom bar */
+    .bottom-bar {
+      position: absolute;
+      bottom: 18px;
+      left: 40px; right: 40px;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+    .bottom-bar span {
+      font-size: 11px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* Test badge */
+    .test-badge {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      background: rgba(232, 89, 60, 0.15);
+      border: 1px solid rgba(232, 89, 60, 0.35);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 11px;
+      color: #E8593C;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Test indicator -->
+  <div class="test-badge">● SPLINE TEST PAGE</div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="nav-left">
+      <button class="pill-btn">☰ &nbsp; Menu</button>
+      <span class="nav-location">/ &nbsp; Sri Lanka – <span id="clock">--:-- --</span></span>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="pill-btn">Bug Bounty &nbsp; ›</button>
+      <button class="pill-btn pill-orange">View Projects</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+
+    <!-- Layer 0: Giant name text -->
+    <div class="hero-name">
+      <span>YOUR NAME</span>
+    </div>
+
+    <!-- Layer 1: Orange radial glow -->
+    <div class="hero-glow"></div>
+
+    <!-- Layer 2: Loading indicator (sits behind Spline) -->
+    <div class="spline-loader" id="loader">
+      <div class="spinner"></div>
+      <span class="loader-text">Loading 3D scene…</span>
+    </div>
+
+    <!-- Layer 3: Spline scene -->
+    <div class="spline-wrap">
+      <spline-viewer
+        id="spline"
+        url="https://prod.spline.design/MjJDbl-AohsHLMCw/scene.splinecode"
+        loading-anim-type="none"
+      ></spline-viewer>
+    </div>
+
+    <!-- Scene status label -->
+    <div class="scene-status" id="scene-status">0X7A</div>
+
+    <!-- Layer 4: Floating UI -->
+    <div class="hero-ui">
+
+      <!-- Tagline bottom-left -->
+      <div class="tagline">
+        <h2>
+          Breaking<br>
+          <span class="strike">Web</span> <span class="accent">Systems</span><br>
+          Responsibly
+        </h2>
+        <div class="pills">
+          <div class="stat-pill">
+            <span class="pill-label">Status</span>
+            <span class="pill-value">Active</span>
+          </div>
+          <div class="stat-pill">
+            <span class="pill-label">Focus</span>
+            <span class="pill-value">WebSec</span>
+          </div>
+          <div class="stat-pill">
+            <span class="pill-label">THM</span>
+            <span class="pill-value">Top 2%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact card bottom-right -->
+      <div class="contact-card">
+        <h3>Contact by Email</h3>
+        <p>Enter your email and I will get back to you.</p>
+        <div class="social-icons">
+          <button class="icon-btn orange" title="LinkedIn">in</button>
+          <button class="icon-btn" title="GitHub">gh</button>
+          <button class="icon-btn" title="Twitter">tw</button>
+          <button class="icon-btn" title="Discord">dc</button>
+        </div>
+        <div class="email-row">
+          <input class="email-input" type="email" placeholder="Your Email" />
+          <button class="send-btn">→</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="bottom-bar">
+      <span>Built with purpose. Crafted with precision.</span>
+      <span>↓ &nbsp; Scroll to explore</span>
+    </div>
+
+  </section>
+
+  <!-- Spline viewer web component (no build step needed) -->
+  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.96/build/spline-viewer.js"></script>
+
+  <script>
+    // Live clock
+    function updateClock() {
+      const t = new Date().toLocaleTimeString('en-US', {
+        timeZone: 'Asia/Colombo',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+      document.getElementById('clock').textContent = t
+    }
+    updateClock()
+    setInterval(updateClock, 1000)
+
+    // Hide loader once Spline fires its load event
+    const viewer = document.getElementById('spline')
+    const loader = document.getElementById('loader')
+
+    viewer.addEventListener('load', () => {
+      loader.classList.add('hidden')
+      setTimeout(() => loader.remove(), 600)
+    })
+
+    // Fallback — hide loader after 12s regardless
+    setTimeout(() => loader.classList.add('hidden'), 12000)
+  </script>
+
+</body>
+</html>
